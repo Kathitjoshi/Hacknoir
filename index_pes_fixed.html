@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PES Hackathon — On-Chain Judging System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* =====================================================
+   DESIGN SYSTEM
+   PES University brand: deep navy, crimson red accent
+   Clean academic / institutional aesthetic
+   ===================================================== */
+:root {
+  --bg:         #0b0f1a;
+  --bg2:        #0f1623;
+  --bg3:        #141d2e;
+  --panel:      #0d1422;
+  --border:     #1c2a3e;
+  --border2:    #243447;
+  --red:        #c0392b;
+  --red-light:  #e74c3c;
+  --red-dim:    #5c1a14;
+  --green:      #27ae60;
+  --green-dim:  #1a4a2e;
+  --blue:       #2980b9;
+  --blue-dim:   #1a3a5c;
+  --amber:      #d4a017;
+  --amber-dim:  #5c4008;
+  --text:       #dce3ed;
+  --text-dim:   #6b7d93;
+  --text-faint: #2e3d52;
+  --font-mono:  'IBM Plex Mono', monospace;
+  --font-sans:  'IBM Plex Sans', sans-serif;
+  --r:          3px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+/* =====================================================
+   CONNECT SCREEN
+   ===================================================== */
+#connect-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.connect-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.connect-logo .uni-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.connect-logo h1 {
+  font-family: var(--font-sans);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.connect-logo h1 span { color: var(--red-light); }
+
+.connect-logo .tagline {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.connect-divider {
+  width: 40px;
+  height: 2px;
+  background: var(--red);
+}
+
+.connect-desc {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  max-width: 380px;
+  line-height: 1.7;
+}
+
+.btn-connect-main {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 13px 36px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+.btn-connect-main:hover { background: var(--red-light); }
+
+.connect-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 54px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-brand .brand-top {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.header-brand .brand-main {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.header-brand .brand-main span { color: var(--red-light); }
+
+.header-sep {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+}
+
+.network-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  padding: 3px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#wallet-addr-display {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green);
+  display: none;
+}
+
+#wallet-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 16px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+#wallet-btn:hover { background: var(--red-light); }
+#wallet-btn.connected { background: var(--green-dim); color: var(--green); }
+
+/* =====================================================
+   STATUS BAR
+   ===================================================== */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 36px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.status-left { display: flex; align-items: center; gap: 28px; }
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.status-label { color: var(--text-faint); }
+
+.state-tag {
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  border-radius: 2px;
+}
+.state-REGISTRATION { background: var(--blue-dim); color: var(--blue); }
+.state-ACTIVE       { background: var(--green-dim); color: var(--green); }
+.state-FINALIZED    { background: var(--amber-dim); color: var(--amber); }
+
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-bar  { width: 120px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s; }
+
+/* =====================================================
+   LAYOUT
+   ===================================================== */
+.app-body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: calc(100vh - 90px);
+}
+
+/* =====================================================
+   SIDEBAR
+   ===================================================== */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-block {
+  border-bottom: 1px solid var(--border);
+  padding: 16px;
+}
+
+.sidebar-block-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* NAV */
+.nav-list { display: flex; flex-direction: column; gap: 1px; }
+
+.nav-item {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: var(--r);
+  cursor: pointer;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+
+.nav-item.active {
+  background: rgba(192, 57, 43, 0.12);
+  color: var(--red-light);
+  border-color: var(--red-dim);
+}
+
+.nav-badge {
+  font-size: 10px;
+  padding: 1px 5px;
+  background: var(--bg3);
+  border-radius: 10px;
+  color: var(--text-dim);
+}
+
+.nav-item.active .nav-badge {
+  background: var(--red-dim);
+  color: var(--red-light);
+}
+
+/* WALLET ROLE CARD */
+.role-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 12px;
+}
+.role-card .rc-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.5px; color: var(--text-faint); margin-bottom: 3px; }
+.role-card .rc-role  { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--red-light); }
+.role-card .rc-addr  { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 5px; word-break: break-all; }
+
+/* REJECTION LOG */
+.rejection-log {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--red-dim);
+  border-radius: var(--r);
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.rej-entry {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--red-light);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(192,57,43,0.1);
+  display: flex;
+  gap: 6px;
+}
+.rej-entry:last-child { border-bottom: none; }
+.rej-ts { color: var(--text-faint); flex-shrink: 0; }
+.rej-empty { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); padding: 6px; }
+
+/* =====================================================
+   MAIN CONTENT
+   ===================================================== */
+.content {
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+
+/* PANELS */
+.panel { display: none; animation: fadein 0.18s ease; }
+.panel.active { display: block; }
+@keyframes fadein { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+.panel-header { margin-bottom: 22px; }
+.panel-title {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+.panel-title span { color: var(--red-light); }
+.panel-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* CARDS */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--red-light);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* FORMS */
+.form-row { display: grid; gap: 12px; margin-bottom: 12px; }
+.form-row.col2 { grid-template-columns: 1fr 1fr; }
+.form-row.col1 { grid-template-columns: 1fr; }
+.form-row.col3 { grid-template-columns: 1fr 1fr 1fr; }
+
+label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+input[type=text], select, textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 8px 11px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+input[type=text]:focus, select:focus, textarea:focus { border-color: var(--red); }
+input[type=text]::placeholder { color: var(--text-faint); }
+select option { background: var(--bg2); }
+textarea { resize: vertical; }
+
+select[multiple] { height: 90px; }
+
+/* BUTTONS */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 9px 18px;
+  border-radius: var(--r);
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  transition: all 0.12s;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.15); }
+.btn:active:not(:disabled) { filter: brightness(0.95); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btn-red    { background: var(--red); color: #fff; }
+.btn-green  { background: var(--green); color: #000; }
+.btn-amber  { background: var(--amber); color: #000; }
+.btn-ghost  {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+}
+.btn-ghost:hover:not(:disabled) { border-color: var(--red); color: var(--red-light); filter: none; }
+.btn-full   { width: 100%; justify-content: center; }
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+/* TABLES */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 11px; }
+thead th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:hover { background: var(--bg3); }
+td { padding: 10px 12px; color: var(--text-dim); }
+td.hi { color: var(--text); font-weight: 500; }
+td.score { color: var(--red-light); font-weight: 700; }
+
+/* SCORE SLIDERS */
+.slider-group { margin-bottom: 14px; }
+.slider-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.slider-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+.slider-val   { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--red-light); }
+.slider-max   { font-size: 10px; color: var(--text-faint); }
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--red-light);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+.aggregate-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.aggregate-box .ag-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+.aggregate-box .ag-val   { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--red-light); }
+
+/* MINI SCORE BARS */
+.mini-bar-wrap { display: flex; align-items: center; gap: 7px; }
+.mini-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.mini-fill { height: 100%; background: var(--red); border-radius: 2px; }
+
+/* CHIPS */
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.chip-green  { background: var(--green-dim);  color: var(--green); }
+.chip-red    { background: var(--red-dim);    color: var(--red-light); }
+.chip-amber  { background: var(--amber-dim);  color: var(--amber); }
+.chip-blue   { background: var(--blue-dim);   color: var(--blue); }
+.chip-dim    { background: var(--bg3);         color: var(--text-dim); }
+
+/* STATUS DOT */
+.dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
+.dot-green { background: var(--green); animation: blink 1.8s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* RANK BADGE */
+.rank-badge {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.rank-1 { background: var(--amber); color: #000; }
+.rank-2 { background: #7f8c8d; color: #000; }
+.rank-3 { background: #6e3b1f; color: #fff; }
+.rank-n { background: var(--bg3); color: var(--text-dim); }
+
+/* PODIUM */
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 24px; }
+.podium-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.podium-block {
+  width: 76px;
+  border-radius: 3px 3px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+}
+.podium-1 .podium-block { height: 80px; background: rgba(212,160,23,0.2); border: 1px solid var(--amber); color: var(--amber); }
+.podium-2 .podium-block { height: 58px; background: rgba(127,140,141,0.15); border: 1px solid #7f8c8d; color: #7f8c8d; }
+.podium-3 .podium-block { height: 44px; background: rgba(110,59,31,0.2); border: 1px solid #6e3b1f; color: #a0522d; }
+.podium-name  { font-family: var(--font-sans); font-size: 11px; font-weight: 600; color: var(--text); text-align: center; max-width: 80px; word-break: break-word; }
+.podium-score { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+
+/* JUDGE PROGRESS CARDS */
+.judge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.judge-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px;
+}
+.judge-card-name { font-family: var(--font-sans); font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+.judge-card-addr { font-family: var(--font-mono); font-size: 9px; color: var(--text-faint); margin-bottom: 8px; }
+.judge-card-assigned { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-bottom: 8px; }
+.jp-wrap { display: flex; align-items: center; gap: 7px; }
+.jp-bar  { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.jp-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+.jp-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+
+/* SCORE BREAKDOWN */
+.breakdown-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.bk-cell { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 10px; text-align: center; }
+.bk-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-faint); margin-bottom: 4px; }
+.bk-val   { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--red-light); }
+.bk-max   { font-family: var(--font-mono); font-size: 9px; color: var(--text-faint); margin-top: 2px; }
+
+/* TOAST */
+#toast-container {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+.toast {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 10px 16px;
+  border-radius: var(--r);
+  border-left: 3px solid;
+  max-width: 340px;
+  animation: t-in 0.2s ease, t-out 0.3s ease 3.7s forwards;
+  pointer-events: all;
+}
+.t-success { background: rgba(39,174,96,0.12);  border-color: var(--green); color: var(--green); }
+.t-error   { background: rgba(192,57,43,0.12);  border-color: var(--red-light); color: var(--red-light); }
+.t-info    { background: rgba(41,128,185,0.12); border-color: var(--blue); color: var(--blue); }
+.t-warn    { background: rgba(212,160,23,0.12); border-color: var(--amber); color: var(--amber); }
+@keyframes t-in  { from { transform: translateX(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes t-out { to { opacity: 0; transform: translateX(16px); } }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 36px 16px; }
+.empty p { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); }
+
+/* WARNING BOX */
+.warning-box {
+  background: rgba(192,57,43,0.08);
+  border: 1px solid var(--red-dim);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--red-light);
+  margin-top: 10px;
+}
+
+/* AUDIT TABLE event chips */
+.ev-chip {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--blue-dim);
+  color: var(--blue);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.ev-chip.reject { background: var(--red-dim); color: var(--red-light); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- =====================================================
+     CONNECT SCREEN
+     ===================================================== -->
+<div id="connect-screen">
+  <div class="connect-logo">
+    <div class="uni-name">PES University</div>
+    <h1>Hackathon <span>Judge</span></h1>
+    <div class="tagline">Transparent On-Chain Contest Evaluation System</div>
+  </div>
+  <div class="connect-divider"></div>
+  <p class="connect-desc">
+    Scores are recorded immutably on the blockchain.<br>
+    No alterations. No disputes. Full audit trail.
+  </p>
+  <button class="btn-connect-main" onclick="connectWallet()">Connect MetaMask</button>
+  <p class="connect-note">Requires MetaMask connected to Ganache (localhost:7545)</p>
+</div>
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+<header>
+  <div class="header-left">
+    <div class="header-brand">
+      <div class="brand-top">PES University</div>
+      <div class="brand-main">Hackathon <span>Judge</span></div>
+    </div>
+    <div class="header-sep"></div>
+    <div class="network-badge">Ganache Local</div>
+  </div>
+  <div class="header-right">
+    <span id="wallet-addr-display"></span>
+    <button id="wallet-btn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+</header>
+
+<!-- =====================================================
+     STATUS BAR
+     ===================================================== -->
+<div class="status-bar">
+  <div class="status-left">
+    <div class="status-item">
+      <span class="status-label">Contest:</span>
+      <span id="sb-name" style="color:var(--text)">—</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">State:</span>
+      <span id="sb-state" class="state-tag">—</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Progress:</span>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="main-progress" style="width:0%"></div></div>
+        <span id="progress-label" style="color:var(--text)">0 / 0</span>
+      </div>
+    </div>
+  </div>
+  <div class="status-item">
+    <span class="status-label">Contract:</span>
+    <span id="sb-contract" style="color:var(--text-dim)">Not connected</span>
+  </div>
+</div>
+
+<!-- =====================================================
+     APP BODY
+     ===================================================== -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="sidebar-block">
+      <div class="sidebar-block-title">Navigation</div>
+      <div class="nav-list">
+        <div class="nav-item active" onclick="nav('deploy')" data-p="deploy">
+          Setup &amp; Deploy
+        </div>
+        <div class="nav-item" onclick="nav('organizer')" data-p="organizer">
+          Organizer
+          <span class="nav-badge" id="badge-organizer">0</span>
+        </div>
+        <div class="nav-item" onclick="nav('judge')" data-p="judge">
+          Judge
+          <span class="nav-badge" id="badge-judge">0</span>
+        </div>
+        <div class="nav-item" onclick="nav('leaderboard')" data-p="leaderboard">
+          Leaderboard
+        </div>
+        <div class="nav-item" onclick="nav('audit')" data-p="audit">
+          Audit Log
+          <span class="nav-badge" id="badge-audit">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-block-title">Connected Wallet</div>
+      <div class="role-card">
+        <div class="rc-label">Role</div>
+        <div class="rc-role" id="wallet-role">Not Connected</div>
+        <div class="rc-addr" id="wallet-role-addr">—</div>
+      </div>
+    </div>
+
+    <div class="sidebar-block" style="flex:1; display:flex; flex-direction:column;">
+      <div class="sidebar-block-title">Rejection Log</div>
+      <div class="rejection-log" id="rejection-log">
+        <div class="rej-empty">No rejections recorded</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- ========== SETUP PANEL ========== -->
+    <div id="panel-deploy" class="panel active">
+      <div class="panel-header">
+        <div class="panel-title">Setup &amp; <span>Deploy</span></div>
+        <div class="panel-sub">Deploy a new contract or connect to an existing one</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Contract Setup</div>
+        <div class="form-row col1">
+          <div>
+            <label>Contest Name</label>
+            <input type="text" id="contest-name-input" value="PES University Hackathon 2025" placeholder="e.g. PES University Hackathon 2025">
+          </div>
+        </div>
+        <div class="form-row col1">
+          <div>
+            <label>Existing Contract Address (to connect without redeploying)</label>
+            <input type="text" id="contract-addr-input" placeholder="0x...">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-red" onclick="deployContract()">Deploy New Contract</button>
+          <button class="btn btn-ghost" onclick="connectExisting()">Connect Existing</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Quick Demo Setup</div>
+        <p style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); margin-bottom:12px; line-height:1.7;">
+          Paste 6 Ganache wallet addresses below (one per line). This will automatically register 3 participants,
+          2 judges, and set up assignments for a complete demo.
+        </p>
+        <div class="form-row col1">
+          <div>
+            <label>Ganache Accounts — one per line (Account[0] must be your connected organizer wallet)</label>
+            <textarea id="ganache-accounts" rows="8" placeholder="0xAccount0  (organizer — must match MetaMask)&#10;0xAccount1  (judge 1)&#10;0xAccount2  (judge 2)&#10;0xAccount3  (participant 1)&#10;0xAccount4  (participant 2)&#10;0xAccount5  (participant 3)"></textarea>
+          </div>
+        </div>
+        <button class="btn btn-green" onclick="quickSetup()">Run Quick Setup</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Scoring Criteria Reference</div>
+        <table>
+          <thead><tr><th>Criteria</th><th>Max Points</th><th>Weight</th></tr></thead>
+          <tbody>
+            <tr><td class="hi">Problem Solving</td><td class="score">40</td><td>40%</td></tr>
+            <tr><td class="hi">Code Quality</td><td class="score">35</td><td>35%</td></tr>
+            <tr><td class="hi">Efficiency</td><td class="score">25</td><td>25%</td></tr>
+            <tr><td class="hi" style="color:var(--amber);">Total</td><td class="score" style="color:var(--amber);">100</td><td style="color:var(--amber);">100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== ORGANIZER PANEL ========== -->
+    <div id="panel-organizer" class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Organizer <span>Dashboard</span></div>
+        <div class="panel-sub">Register participants and judges, assign evaluators, control contest lifecycle</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Register Participant</div>
+        <div class="form-row col2">
+          <div>
+            <label>Wallet Address</label>
+            <input type="text" id="reg-p-addr" placeholder="0x...">
+          </div>
+          <div>
+            <label>Full Name</label>
+            <input type="text" id="reg-p-name" placeholder="e.g. Arjun Sharma">
+          </div>
+        </div>
+        <button class="btn btn-red" onclick="registerParticipant()">Register Participant</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Register Judge</div>
+        <div class="form-row col2">
+          <div>
+            <label>Wallet Address</label>
+            <input type="text" id="reg-j-addr" placeholder="0x...">
+          </div>
+          <div>
+            <label>Full Name</label>
+            <input type="text" id="reg-j-name" placeholder="e.g. Prof. Ramesh Kumar">
+          </div>
+        </div>
+        <button class="btn btn-red" onclick="registerJudge()">Register Judge</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Assign Participants to Judge</div>
+        <div class="form-row col1">
+          <div>
+            <label>Select Judge</label>
+            <select id="assign-judge-select">
+              <option value="">-- Select a Judge --</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row col1">
+          <div>
+            <label>Select Participants (hold Ctrl or Cmd to select multiple)</label>
+            <select id="assign-participants-select" multiple></select>
+          </div>
+        </div>
+        <button class="btn btn-red" onclick="assignParticipants()">Assign Selected Participants</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="startJudging()">Start Judging Phase</button>
+        <button class="btn btn-amber" id="finalize-btn" onclick="finalizeContest()" disabled>Finalize and Lock Results</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card">
+        <div class="card-title">Registered Participants</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Address</th><th>Judges Scored</th><th>Running Average</th>
+            </tr></thead>
+            <tbody id="participants-table">
+              <tr><td colspan="4"><div class="empty"><p>No participants registered</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Judges and Assignment Progress</div>
+        <div class="judge-grid" id="judges-grid">
+          <div class="empty"><p>No judges registered</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== JUDGE PANEL ========== -->
+    <div id="panel-judge" class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Judge <span>Scoring</span></div>
+        <div class="panel-sub">Submit evaluations for assigned participants — scores are immutable once submitted</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your Assignment Status</div>
+        <div id="judge-assignment-status">
+          <p style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim);">Switch MetaMask to a judge wallet to see assignments.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Submit Score</div>
+        <div class="form-row col1">
+          <div>
+            <label>Select Participant</label>
+            <select id="score-participant-select">
+              <option value="">-- Select Assigned Participant --</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Problem Solving</span>
+              <span><span class="slider-val" id="ps-val">20</span><span class="slider-max"> / 40</span></span>
+            </div>
+            <input type="range" min="0" max="40" value="20" id="ps-slider"
+              oninput="document.getElementById('ps-val').textContent=this.value; updateAggregate()">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Code Quality</span>
+              <span><span class="slider-val" id="cq-val">17</span><span class="slider-max"> / 35</span></span>
+            </div>
+            <input type="range" min="0" max="35" value="17" id="cq-slider"
+              oninput="document.getElementById('cq-val').textContent=this.value; updateAggregate()">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Efficiency</span>
+              <span><span class="slider-val" id="ef-val">12</span><span class="slider-max"> / 25</span></span>
+            </div>
+            <input type="range" min="0" max="25" value="12" id="ef-slider"
+              oninput="document.getElementById('ef-val').textContent=this.value; updateAggregate()">
+          </div>
+
+          <div class="aggregate-box">
+            <span class="ag-label">Aggregate Score</span>
+            <span class="ag-val" id="aggregate-preview">49 / 100</span>
+          </div>
+        </div>
+
+        <button class="btn btn-green btn-full" style="margin-top:14px;" onclick="submitScore()">
+          Submit Score (Cannot Be Changed After This)
+        </button>
+        <div class="warning-box">
+          Once submitted, this score is permanently recorded on the blockchain and cannot be edited or deleted by anyone.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your Submitted Scores</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Participant</th><th>Problem Solving</th><th>Code Quality</th><th>Efficiency</th><th>Aggregate</th><th>Submitted At</th>
+            </tr></thead>
+            <tbody id="my-scores-table">
+              <tr><td colspan="6"><div class="empty"><p>No scores submitted yet</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== LEADERBOARD PANEL ========== -->
+    <div id="panel-leaderboard" class="panel">
+      <div class="panel-header">
+        <div class="panel-title">PES Hackathon <span>Leaderboard</span></div>
+        <div class="panel-sub">Rankings are based on average scores across all assigned judges</div>
+      </div>
+
+      <div id="podium-section" style="display:none;">
+        <div class="card">
+          <div class="card-title">Top Three</div>
+          <div class="podium" id="podium-display"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Full Rankings</div>
+        <div id="lb-status-badge" style="margin-bottom:12px;"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Rank</th>
+              <th>Participant</th>
+              <th>Prob. Solving</th>
+              <th>Code Quality</th>
+              <th>Efficiency</th>
+              <th>Final Score</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody id="leaderboard-table">
+              <tr><td colspan="7"><div class="empty"><p>No data yet</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-family:var(--font-mono); font-size:10px; color:var(--text-faint); margin-top:10px;">
+          Click any row to see the per-judge score breakdown.
+        </p>
+      </div>
+
+      <div class="card" id="score-breakdown-card" style="display:none;">
+        <div class="card-title" id="breakdown-title">Score Breakdown</div>
+        <div id="breakdown-content"></div>
+      </div>
+    </div>
+
+    <!-- ========== AUDIT PANEL ========== -->
+    <div id="panel-audit" class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Audit <span>Log</span></div>
+        <div class="panel-sub">Complete on-chain event history — all actions are traceable</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Event History</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Event</th><th>Details</th><th>Wallet</th><th>Time</th>
+            </tr></thead>
+            <tbody id="audit-table">
+              <tr><td colspan="4"><div class="empty"><p>No events recorded yet</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Rejection Scenarios Demonstrated</div>
+        <div id="rejection-summary">
+          <div class="empty"><p>No rejections yet. Attempt invalid transactions to demonstrate contract enforcement.</p></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- =====================================================
+     WEB3 + APPLICATION LOGIC
+     ===================================================== -->
+<script>
+
+// =====================================================
+//  CONTRACT ABI — matches ContestJudging.sol exactly
+// =====================================================
+const ABI = [
+  {"inputs":[{"internalType":"string","name":"_contestName","type":"string"}],"stateMutability":"nonpayable","type":"constructor"},
+  {"inputs":[],"name":"AlreadyFinalized","type":"error"},
+  {"inputs":[],"name":"AlreadyRegistered","type":"error"},
+  {"inputs":[],"name":"ContestNotActive","type":"error"},
+  {"inputs":[],"name":"JudgesHaveIncompleteSubmissions","type":"error"},
+  {"inputs":[],"name":"NotAJudge","type":"error"},
+  {"inputs":[],"name":"NotInActiveState","type":"error"},
+  {"inputs":[],"name":"NotInRegistration","type":"error"},
+  {"inputs":[],"name":"NotOrganizer","type":"error"},
+  {"inputs":[],"name":"NotRegistered","type":"error"},
+  {"inputs":[{"internalType":"address","name":"judge","type":"address"},{"internalType":"address","name":"participant","type":"address"}],"name":"ParticipantNotAssigned","type":"error"},
+  {"inputs":[{"internalType":"address","name":"judge","type":"address"},{"internalType":"address","name":"participant","type":"address"}],"name":"ScoreAlreadySubmitted","type":"error"},
+  {"inputs":[{"internalType":"string","name":"criteria","type":"string"},{"internalType":"uint8","name":"given","type":"uint8"},{"internalType":"uint256","name":"max","type":"uint256"}],"name":"InvalidScore","type":"error"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"organizer","type":"address"},{"indexed":false,"internalType":"string","name":"contestName","type":"string"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"ContestCreated","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":true,"internalType":"address","name":"topRanked","type":"address"}],"name":"ContestFinalized","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"judge","type":"address"},{"indexed":false,"internalType":"string","name":"name","type":"string"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"JudgeRegistered","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"JudgingStarted","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"participant","type":"address"},{"indexed":false,"internalType":"string","name":"name","type":"string"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"ParticipantRegistered","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"judge","type":"address"},{"indexed":true,"internalType":"address","name":"participant","type":"address"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"ParticipantAssignedToJudge","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"participant","type":"address"},{"indexed":false,"internalType":"uint8","name":"rank","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"finalScore","type":"uint256"}],"name":"RankAssigned","type":"event"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"judge","type":"address"},{"indexed":true,"internalType":"address","name":"participant","type":"address"},{"indexed":false,"internalType":"uint8","name":"problemSolving","type":"uint8"},{"indexed":false,"internalType":"uint8","name":"codeQuality","type":"uint8"},{"indexed":false,"internalType":"uint8","name":"efficiency","type":"uint8"},{"indexed":false,"internalType":"uint16","name":"aggregate","type":"uint16"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"ScoreSubmitted","type":"event"},
+  {"inputs":[{"internalType":"address","name":"_judge","type":"address"},{"internalType":"address[]","name":"_participants","type":"address[]"}],"name":"assignParticipantsToJudge","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"contestName","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"contestState","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"finalizeContest","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"getAllJudges","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getAllParticipants","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getContestStateString","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"_judge","type":"address"}],"name":"getJudge","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"bool","name":"registered","type":"bool"},{"internalType":"uint256","name":"submittedCount","type":"uint256"},{"internalType":"uint256","name":"assignedCount","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"_judge","type":"address"}],"name":"getJudgeAssignments","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getJudgingProgress","outputs":[{"internalType":"uint256","name":"submitted","type":"uint256"},{"internalType":"uint256","name":"required","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getLeaderboard","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"_wallet","type":"address"}],"name":"getParticipant","outputs":[{"internalType":"string","name":"name","type":"string"},{"internalType":"bool","name":"registered","type":"bool"},{"internalType":"uint256","name":"totalAggregate","type":"uint256"},{"internalType":"uint256","name":"judgeCount","type":"uint256"},{"internalType":"uint256","name":"finalScore","type":"uint256"},{"internalType":"uint8","name":"rank","type":"uint8"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"_judge","type":"address"},{"internalType":"address","name":"_participant","type":"address"}],"name":"getScore","outputs":[{"internalType":"uint8","name":"problemSolving","type":"uint8"},{"internalType":"uint8","name":"codeQuality","type":"uint8"},{"internalType":"uint8","name":"efficiency","type":"uint8"},{"internalType":"uint16","name":"aggregate","type":"uint16"},{"internalType":"bool","name":"submitted","type":"bool"},{"internalType":"uint256","name":"timestamp","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"isReadyToFinalize","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"MAX_CODE_QUALITY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"MAX_EFFICIENCY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"MAX_PROBLEM_SOLVING","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"organizer","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"_wallet","type":"address"},{"internalType":"string","name":"_name","type":"string"}],"name":"registerJudge","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"_wallet","type":"address"},{"internalType":"string","name":"_name","type":"string"}],"name":"registerParticipant","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"startJudging","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"_participant","type":"address"},{"internalType":"uint8","name":"_problemSolving","type":"uint8"},{"internalType":"uint8","name":"_codeQuality","type":"uint8"},{"internalType":"uint8","name":"_efficiency","type":"uint8"}],"name":"submitScore","outputs":[],"stateMutability":"nonpayable","type":"function"}
+];
+
+// Paste Remix-compiled bytecode here after deployment.
+// Leave as '0x' if you plan to use "Connect Existing" with your Remix-deployed address.
+const BYTECODE = '0x';
+
+// =====================================================
+//  APPLICATION STATE
+// =====================================================
+let web3, contract, currentAccount, contractAddress;
+let contestStateNum = -1;
+let participantsCache = [];
+let judgesCache       = [];
+let auditLog          = [];
+let rejectionLog      = [];
+let myAssignments     = [];
+
+// =====================================================
+//  AGGREGATE PREVIEW
+// =====================================================
+function updateAggregate() {
+  const ps = +document.getElementById('ps-slider').value;
+  const cq = +document.getElementById('cq-slider').value;
+  const ef = +document.getElementById('ef-slider').value;
+  document.getElementById('aggregate-preview').textContent = (ps + cq + ef) + ' / 100';
+}
+
+// =====================================================
+//  WALLET
+// =====================================================
+async function connectWallet() {
+  if (typeof window.ethereum === 'undefined') {
+    toast('MetaMask not detected. Install the MetaMask browser extension first.', 'error');
+    return;
+  }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    currentAccount = accounts[0];
+    web3 = new Web3(window.ethereum);
+
+    document.getElementById('connect-screen').style.display = 'none';
+    document.getElementById('wallet-btn').textContent = 'Connected';
+    document.getElementById('wallet-btn').classList.add('connected');
+    document.getElementById('wallet-addr-display').style.display = 'inline';
+    document.getElementById('wallet-addr-display').textContent = shortAddr(currentAccount);
+
+    window.ethereum.on('accountsChanged', accs => {
+      currentAccount = accs[0];
+      document.getElementById('wallet-addr-display').textContent = shortAddr(currentAccount);
+      updateWalletRole();
+      refreshAll();
+    });
+
+    toast('Wallet connected: ' + shortAddr(currentAccount), 'success');
+    addAudit('WalletConnected', 'Wallet connected to application', currentAccount);
+    updateWalletRole();
+  } catch(e) {
+    toast('Connection failed: ' + (e.message || e), 'error');
+  }
+}
+
+async function updateWalletRole() {
+  if (!currentAccount || !contract) {
+    document.getElementById('wallet-role').textContent = 'Observer';
+    document.getElementById('wallet-role-addr').textContent = currentAccount ? shortAddr(currentAccount) : '—';
+    return;
+  }
+  document.getElementById('wallet-role-addr').textContent = shortAddr(currentAccount);
+  try {
+    const org = await contract.methods.organizer().call();
+    if (org.toLowerCase() === currentAccount.toLowerCase()) {
+      setRole('Organizer', 'var(--red-light)'); return;
+    }
+    const j = await contract.methods.getJudge(currentAccount).call();
+    if (j.registered) { setRole('Judge', 'var(--green)'); return; }
+    const p = await contract.methods.getParticipant(currentAccount).call();
+    if (p.registered) { setRole('Participant', 'var(--blue)'); return; }
+    setRole('Observer', 'var(--text-dim)');
+  } catch(e) { setRole('Unknown', 'var(--text-dim)'); }
+}
+
+function setRole(role, color) {
+  const el = document.getElementById('wallet-role');
+  el.textContent = role;
+  el.style.color = color;
+}
+
+// =====================================================
+//  DEPLOY / CONNECT
+// =====================================================
+async function deployContract() {
+  if (!web3) { toast('Connect wallet first', 'error'); return; }
+  if (BYTECODE === '0x' || BYTECODE.length < 4) {
+    toast('Bytecode not set. Paste the compiled bytecode into the BYTECODE constant in this file, or use Connect Existing.', 'warn');
+    return;
+  }
+  const name = document.getElementById('contest-name-input').value.trim();
+  if (!name) { toast('Enter a contest name', 'warn'); return; }
+  toast('Deploying contract — confirm in MetaMask...', 'info');
+  try {
+    const deployed = await new web3.eth.Contract(ABI).deploy({
+      data: BYTECODE, arguments: [name]
+    }).send({ from: currentAccount, gas: 3000000 });
+    contractAddress = deployed.options.address;
+    contract = deployed;
+    document.getElementById('contract-addr-input').value = contractAddress;
+    document.getElementById('sb-contract').textContent = shortAddr(contractAddress);
+    toast('Contract deployed at ' + shortAddr(contractAddress), 'success');
+    addAudit('ContestCreated', 'Contract deployed: ' + name, currentAccount);
+    await refreshAll();
+    listenEvents();
+  } catch(e) { handleError(e, 'Deployment failed'); }
+}
+
+async function connectExisting() {
+  if (!web3) { toast('Connect wallet first', 'error'); return; }
+  const addr = document.getElementById('contract-addr-input').value.trim();
+  if (!web3.utils.isAddress(addr)) { toast('Invalid contract address', 'error'); return; }
+  try {
+    contract = new web3.eth.Contract(ABI, addr);
+    contractAddress = addr;
+    eventsListening = false; // reset so new listeners attach to new contract
+    await contract.methods.contestName().call(); // verify it works
+    document.getElementById('sb-contract').textContent = shortAddr(addr);
+    toast('Connected to contract at ' + shortAddr(addr), 'success');
+    await refreshAll();
+    listenEvents();
+    updateWalletRole();
+  } catch(e) {
+    toast('Could not connect: check the address is a valid ContestJudging contract', 'error');
+  }
+}
+
+let eventsListening = false;
+
+function listenEvents() {
+  if (!contract || eventsListening) return;
+  eventsListening = true;
+  contract.events.ScoreSubmitted({}, (err, ev) => {
+    if (err) return;
+    const d = ev.returnValues;
+    addAudit('ScoreSubmitted',
+      'Judge ' + shortAddr(d.judge) + ' scored ' + shortAddr(d.participant) + ' — aggregate: ' + d.aggregate,
+      d.judge);
+    refreshAll();
+  });
+  contract.events.ParticipantRegistered({}, (err, ev) => {
+    if (err) return;
+    addAudit('ParticipantRegistered', ev.returnValues.name + ' registered as participant', ev.returnValues.participant);
+    refreshAll();
+  });
+  contract.events.JudgeRegistered({}, (err, ev) => {
+    if (err) return;
+    addAudit('JudgeRegistered', ev.returnValues.name + ' registered as judge', ev.returnValues.judge);
+    refreshAll();
+  });
+  contract.events.JudgingStarted({}, (err) => {
+    if (err) return;
+    addAudit('JudgingStarted', 'Contest moved to ACTIVE state', currentAccount);
+    refreshAll();
+  });
+  contract.events.ContestFinalized({}, (err, ev) => {
+    if (err) return;
+    addAudit('ContestFinalized', 'Contest finalized. Winner: ' + shortAddr(ev.returnValues.topRanked), currentAccount);
+    refreshAll();
+  });
+}
+
+// =====================================================
+//  ORGANIZER ACTIONS
+// =====================================================
+async function registerParticipant() {
+  if (!guard()) return;
+  const addr = document.getElementById('reg-p-addr').value.trim();
+  const name = document.getElementById('reg-p-name').value.trim();
+  if (!web3.utils.isAddress(addr) || !name) { toast('Provide a valid address and name', 'warn'); return; }
+  try {
+    await contract.methods.registerParticipant(addr, name).send({ from: currentAccount, gas: 200000 });
+    toast('Participant "' + name + '" registered', 'success');
+    document.getElementById('reg-p-addr').value = '';
+    document.getElementById('reg-p-name').value = '';
+    await refreshAll();
+  } catch(e) { handleError(e, 'Register participant failed'); }
+}
+
+async function registerJudge() {
+  if (!guard()) return;
+  const addr = document.getElementById('reg-j-addr').value.trim();
+  const name = document.getElementById('reg-j-name').value.trim();
+  if (!web3.utils.isAddress(addr) || !name) { toast('Provide a valid address and name', 'warn'); return; }
+  try {
+    await contract.methods.registerJudge(addr, name).send({ from: currentAccount, gas: 200000 });
+    toast('Judge "' + name + '" registered', 'success');
+    document.getElementById('reg-j-addr').value = '';
+    document.getElementById('reg-j-name').value = '';
+    await refreshAll();
+  } catch(e) { handleError(e, 'Register judge failed'); }
+}
+
+async function assignParticipants() {
+  if (!guard()) return;
+  const judge = document.getElementById('assign-judge-select').value;
+  const sel   = document.getElementById('assign-participants-select');
+  const parts = Array.from(sel.selectedOptions).map(o => o.value);
+  if (!judge || parts.length === 0) { toast('Select a judge and at least one participant', 'warn'); return; }
+  try {
+    await contract.methods.assignParticipantsToJudge(judge, parts).send({ from: currentAccount, gas: 300000 });
+    toast(parts.length + ' participant(s) assigned to judge', 'success');
+    addAudit('Assignment', parts.length + ' participant(s) assigned to ' + shortAddr(judge), currentAccount);
+    await refreshAll();
+  } catch(e) { handleError(e, 'Assignment failed'); }
+}
+
+async function startJudging() {
+  if (!guard()) return;
+  try {
+    await contract.methods.startJudging().send({ from: currentAccount, gas: 100000 });
+    toast('Judging phase started.', 'success');
+    await refreshAll();
+  } catch(e) { handleError(e, 'Start judging failed'); }
+}
+
+async function finalizeContest() {
+  if (!guard()) return;
+  try {
+    await contract.methods.finalizeContest().send({ from: currentAccount, gas: 500000 });
+    toast('Contest finalized. Leaderboard is now permanently locked.', 'success');
+    await refreshAll();
+    // Auto-navigate to leaderboard so user sees results immediately
+    nav('leaderboard');
+  } catch(e) { handleError(e, 'Finalization failed'); }
+}
+
+// =====================================================
+//  JUDGE ACTIONS
+// =====================================================
+async function submitScore() {
+  if (!guard()) return;
+  const participant = document.getElementById('score-participant-select').value;
+  if (!participant) { toast('Select a participant', 'warn'); return; }
+  const ps = +document.getElementById('ps-slider').value;
+  const cq = +document.getElementById('cq-slider').value;
+  const ef = +document.getElementById('ef-slider').value;
+  try {
+    await contract.methods.submitScore(participant, ps, cq, ef).send({ from: currentAccount, gas: 200000 });
+    toast('Score submitted. Aggregate: ' + (ps+cq+ef) + '/100', 'success');
+    await refreshJudgePanel();
+  } catch(e) { handleError(e, 'Score submission failed'); }
+}
+
+// =====================================================
+//  QUICK SETUP
+// =====================================================
+async function quickSetup() {
+  if (!guard()) return;
+  const lines = document.getElementById('ganache-accounts').value
+    .split('\n').map(l => l.trim()).filter(l => web3.utils.isAddress(l));
+  if (lines.length < 6) {
+    toast('Need 6 valid addresses. Account[0] = organizer (your connected wallet), [1-2] = judges, [3-5] = participants', 'warn');
+    return;
+  }
+  const [, j1, j2, p1, p2, p3] = lines;
+  const steps = [
+    ['registerParticipant', [p1, 'Arjun Sharma']],
+    ['registerParticipant', [p2, 'Priya Nair']],
+    ['registerParticipant', [p3, 'Rahul Mehta']],
+    ['registerJudge',       [j1, 'Prof. Ramesh Kumar']],
+    ['registerJudge',       [j2, 'Dr. Sunita Rao']],
+    ['assignParticipantsToJudge', [j1, [p1, p2]]],
+    ['assignParticipantsToJudge', [j2, [p2, p3]]],
+  ];
+  toast('Running setup — this will take a moment...', 'info');
+  for (let i = 0; i < steps.length; i++) {
+    const [fn, args] = steps[i];
+    try {
+      await contract.methods[fn](...args).send({ from: currentAccount, gas: 300000 });
+      toast('Step ' + (i+1) + '/' + steps.length + ' done', 'info');
+    } catch(e) { /* skip already-registered etc */ }
+  }
+  await refreshAll();
+  toast('Quick setup complete. You can now start judging.', 'success');
+}
+
+// =====================================================
+//  REFRESH STATE
+// =====================================================
+async function refreshAll() {
+  if (!contract) return;
+  try {
+    const [name, stateStr, prog] = await Promise.all([
+      contract.methods.contestName().call(),
+      contract.methods.getContestStateString().call(),
+      contract.methods.getJudgingProgress().call()
+    ]);
+
+    document.getElementById('sb-name').textContent = name;
+    const sb = document.getElementById('sb-state');
+    sb.textContent = stateStr;
+    sb.className = 'state-tag state-' + stateStr;
+
+    const sub = +prog.submitted, req = +prog.required;
+    const pct = req > 0 ? Math.round(sub/req*100) : 0;
+    document.getElementById('main-progress').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = sub + ' / ' + req;
+
+    contestStateNum = stateStr === 'REGISTRATION' ? 0 : stateStr === 'ACTIVE' ? 1 : 2;
+
+    if (contestStateNum === 1) {
+      const ready = await contract.methods.isReadyToFinalize().call();
+      document.getElementById('finalize-btn').disabled = !ready;
+    } else {
+      document.getElementById('finalize-btn').disabled = true;
+    }
+
+    await refreshParticipants();
+    await refreshJudges();
+    await refreshJudgePanel();
+    await refreshLeaderboard();
+    updateWalletRole();
+  } catch(e) { console.error('refreshAll error', e); }
+}
+
+async function refreshParticipants() {
+  const addrs = await contract.methods.getAllParticipants().call();
+  // Deduplicate by address before caching
+  const seen = new Set();
+  participantsCache = [];
+  for (const a of addrs) {
+    if (seen.has(a.toLowerCase())) continue;
+    seen.add(a.toLowerCase());
+    const p = await contract.methods.getParticipant(a).call();
+    participantsCache.push({ address: a, ...p });
+  }
+  document.getElementById('badge-organizer').textContent = participantsCache.length;
+  renderParticipantsTable();
+  populateSelects();
+}
+
+async function refreshJudges() {
+  const addrs = await contract.methods.getAllJudges().call();
+  // Deduplicate by address before caching
+  const seen = new Set();
+  judgesCache = [];
+  for (const a of addrs) {
+    if (seen.has(a.toLowerCase())) continue;
+    seen.add(a.toLowerCase());
+    const j = await contract.methods.getJudge(a).call();
+    const assignments = await contract.methods.getJudgeAssignments(a).call();
+    judgesCache.push({ address: a, ...j, assignments });
+  }
+  document.getElementById('badge-judge').textContent = judgesCache.length;
+  renderJudgesGrid();
+  populateSelects();
+}
+
+async function refreshJudgePanel() {
+  if (!contract || !currentAccount) return;
+  const j = await contract.methods.getJudge(currentAccount).call();
+  const statusEl = document.getElementById('judge-assignment-status');
+
+  if (!j.registered) {
+    statusEl.innerHTML = '<p style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">The connected wallet is not a registered judge. Switch MetaMask to a judge wallet.</p>';
+    return;
+  }
+
+  myAssignments = await contract.methods.getJudgeAssignments(currentAccount).call();
+  const done  = +j.submittedCount;
+  const total = +j.assignedCount;
+  const pct   = total > 0 ? Math.round(done/total*100) : 0;
+  const color = pct === 100 ? 'var(--green)' : pct > 0 ? 'var(--amber)' : 'var(--border2)';
+
+  statusEl.innerHTML = `
+    <div style="display:flex;gap:24px;margin-bottom:14px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-faint);margin-bottom:2px;">ASSIGNED</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--text);">${total}</div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-faint);margin-bottom:2px;">SUBMITTED</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--green);">${done}</div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-faint);margin-bottom:2px;">REMAINING</div>
+        <div style="font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--red-light);">${total-done}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;transition:width 0.4s;"></div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text);">${pct}%</span>
+    </div>`;
+
+  // Populate score select with only unsubmitted assignments
+  const sel = document.getElementById('score-participant-select');
+  sel.innerHTML = '<option value="">-- Select Assigned Participant --</option>';
+  for (const pAddr of myAssignments) {
+    const sc = await contract.methods.getScore(currentAccount, pAddr).call();
+    if (!sc.submitted) {
+      const p = participantsCache.find(x => x.address.toLowerCase() === pAddr.toLowerCase());
+      const nm = p ? p.name : shortAddr(pAddr);
+      sel.innerHTML += `<option value="${pAddr}">${nm}</option>`;
+    }
+  }
+
+  // Submitted scores table
+  const tbody = document.getElementById('my-scores-table');
+  let rows = '';
+  for (const pAddr of myAssignments) {
+    const sc = await contract.methods.getScore(currentAccount, pAddr).call();
+    if (sc.submitted) {
+      const p = participantsCache.find(x => x.address.toLowerCase() === pAddr.toLowerCase());
+      rows += `<tr>
+        <td class="hi">${p ? p.name : shortAddr(pAddr)}</td>
+        <td><div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-fill" style="width:${sc.problemSolving/40*100}%"></div></div>${sc.problemSolving}/40</div></td>
+        <td><div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-fill" style="width:${sc.codeQuality/35*100}%"></div></div>${sc.codeQuality}/35</div></td>
+        <td><div class="mini-bar-wrap"><div class="mini-bar"><div class="mini-fill" style="width:${sc.efficiency/25*100}%"></div></div>${sc.efficiency}/25</div></td>
+        <td class="score">${sc.aggregate}/100</td>
+        <td>${new Date(+sc.timestamp*1000).toLocaleTimeString()}</td>
+      </tr>`;
+    }
+  }
+  tbody.innerHTML = rows || '<tr><td colspan="6"><div class="empty"><p>No scores submitted yet</p></div></td></tr>';
+}
+
+async function refreshLeaderboard() {
+  if (!contract) return;
+  const tbody   = document.getElementById('leaderboard-table');
+  const badge   = document.getElementById('lb-status-badge');
+
+  // Always re-read state fresh from contract
+  try {
+    const stateStr = await contract.methods.getContestStateString().call();
+    contestStateNum = stateStr === 'REGISTRATION' ? 0 : stateStr === 'ACTIVE' ? 1 : 2;
+    const sb = document.getElementById('sb-state');
+    sb.textContent = stateStr;
+    sb.className = 'state-tag state-' + stateStr;
+    // Only refresh caches if called directly from nav (not from refreshAll which already does it)
+    if (participantsCache.length === 0) await refreshParticipants();
+    if (judgesCache.length === 0) await refreshJudges();
+  } catch(e) { console.error('state refresh error', e); }
+
+  if (contestStateNum === 2) {
+    badge.innerHTML = '<span class="chip chip-amber">FINALIZED — Results Permanently Locked</span>';
+    const ranked = await contract.methods.getLeaderboard().call();
+    let rows = '';
+    for (let i = 0; i < ranked.length; i++) {
+      const p  = await contract.methods.getParticipant(ranked[i]).call();
+      const cr = await getAvgCriteria(ranked[i]);
+      const rc = i < 3 ? 'rank-' + (i+1) : 'rank-n';
+      rows += `<tr onclick="showBreakdown('${ranked[i]}')" style="cursor:pointer;">
+        <td><div class="rank-badge ${rc}">${i+1}</div></td>
+        <td class="hi">${p.name}</td>
+        <td>${cr.ps.toFixed(1)}/40</td>
+        <td>${cr.cq.toFixed(1)}/35</td>
+        <td>${cr.ef.toFixed(1)}/25</td>
+        <td class="score" style="font-size:14px;">${p.finalScore}</td>
+        <td><span class="chip chip-amber">LOCKED</span></td>
+      </tr>`;
+    }
+    tbody.innerHTML = rows || '<tr><td colspan="7"><div class="empty"><p>No ranked data</p></div></td></tr>';
+
+    if (ranked.length >= 3) {
+      document.getElementById('podium-section').style.display = 'block';
+      const p1 = await contract.methods.getParticipant(ranked[0]).call();
+      const p2 = await contract.methods.getParticipant(ranked[1]).call();
+      const p3 = await contract.methods.getParticipant(ranked[2]).call();
+      document.getElementById('podium-display').innerHTML = `
+        <div class="podium-item podium-2">
+          <div class="podium-name">${p2.name}</div>
+          <div class="podium-score">${p2.finalScore} pts</div>
+          <div class="podium-block">2nd</div>
+        </div>
+        <div class="podium-item podium-1">
+          <div class="podium-name">${p1.name}</div>
+          <div class="podium-score">${p1.finalScore} pts</div>
+          <div class="podium-block">1st</div>
+        </div>
+        <div class="podium-item podium-3">
+          <div class="podium-name">${p3.name}</div>
+          <div class="podium-score">${p3.finalScore} pts</div>
+          <div class="podium-block">3rd</div>
+        </div>`;
+    }
+  } else {
+    const isActive = contestStateNum === 1;
+    badge.innerHTML = isActive
+      ? '<span class="chip chip-green"><span class="dot dot-green"></span>LIVE — Judging In Progress</span>'
+      : '<span class="chip chip-blue">REGISTRATION PHASE</span>';
+
+    const sorted = [...participantsCache].sort((a,b) => {
+      const avgA = a.judgeCount > 0 ? a.totalAggregate / a.judgeCount : 0;
+      const avgB = b.judgeCount > 0 ? b.totalAggregate / b.judgeCount : 0;
+      return avgB - avgA;
+    });
+    let rows = '';
+    for (let i = 0; i < sorted.length; i++) {
+      const p = sorted[i];
+      const avg = p.judgeCount > 0 ? (p.totalAggregate / p.judgeCount).toFixed(1) : '—';
+      rows += `<tr>
+        <td><div class="rank-badge rank-n">${i+1}</div></td>
+        <td class="hi">${p.name}</td>
+        <td>—</td><td>—</td><td>—</td>
+        <td class="score">${avg}</td>
+        <td><span class="chip chip-dim">PENDING</span></td>
+      </tr>`;
+    }
+    tbody.innerHTML = rows || '<tr><td colspan="7"><div class="empty"><p>No participants yet</p></div></td></tr>';
+  }
+}
+
+async function getAvgCriteria(pAddr) {
+  let ps=0, cq=0, ef=0, n=0;
+  for (const j of judgesCache) {
+    try {
+      const sc = await contract.methods.getScore(j.address, pAddr).call();
+      if (sc.submitted) { ps += +sc.problemSolving; cq += +sc.codeQuality; ef += +sc.efficiency; n++; }
+    } catch(e) {}
+  }
+  return n > 0 ? {ps:ps/n, cq:cq/n, ef:ef/n} : {ps:0, cq:0, ef:0};
+}
+
+async function showBreakdown(pAddr) {
+  const p = participantsCache.find(x => x.address.toLowerCase() === pAddr.toLowerCase());
+  document.getElementById('breakdown-title').textContent = 'Score Breakdown — ' + (p ? p.name : shortAddr(pAddr));
+  let html = '';
+  for (const j of judgesCache) {
+    try {
+      const sc = await contract.methods.getScore(j.address, pAddr).call();
+      if (sc.submitted) {
+        html += `
+          <div style="border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-bottom:10px;">
+              Judge: <strong style="color:var(--text);">${j.name}</strong> (${shortAddr(j.address)})
+              &nbsp;&mdash;&nbsp; ${new Date(+sc.timestamp*1000).toLocaleString()}
+            </div>
+            <div class="breakdown-grid">
+              <div class="bk-cell"><div class="bk-label">Problem Solving</div><div class="bk-val">${sc.problemSolving}</div><div class="bk-max">/ 40</div></div>
+              <div class="bk-cell"><div class="bk-label">Code Quality</div><div class="bk-val">${sc.codeQuality}</div><div class="bk-max">/ 35</div></div>
+              <div class="bk-cell"><div class="bk-label">Efficiency</div><div class="bk-val">${sc.efficiency}</div><div class="bk-max">/ 25</div></div>
+            </div>
+            <div style="text-align:right;font-family:var(--font-mono);font-size:12px;color:var(--red-light);margin-top:8px;">
+              Aggregate: ${sc.aggregate} / 100
+            </div>
+          </div>`;
+      }
+    } catch(e) {}
+  }
+  if (!html) html = '<p style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">No scores submitted for this participant yet.</p>';
+  document.getElementById('breakdown-content').innerHTML = html;
+  document.getElementById('score-breakdown-card').style.display = 'block';
+}
+
+// =====================================================
+//  RENDER HELPERS
+// =====================================================
+function renderParticipantsTable() {
+  const tbody = document.getElementById('participants-table');
+  let rows = '';
+  for (const p of participantsCache) {
+    const avg = p.judgeCount > 0 ? (p.totalAggregate / p.judgeCount).toFixed(1) : '—';
+    rows += `<tr>
+      <td class="hi">${p.name}</td>
+      <td>${shortAddr(p.address)}</td>
+      <td>${p.judgeCount}</td>
+      <td class="score">${avg}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = rows || '<tr><td colspan="4"><div class="empty"><p>No participants registered</p></div></td></tr>';
+}
+
+function renderJudgesGrid() {
+  const grid = document.getElementById('judges-grid');
+  if (!judgesCache.length) {
+    grid.innerHTML = '<div class="empty"><p>No judges registered</p></div>';
+    return;
+  }
+  grid.innerHTML = judgesCache.map(j => {
+    const pct   = j.assignedCount > 0 ? Math.round(j.submittedCount/j.assignedCount*100) : 0;
+    const color = pct === 100 ? 'var(--green)' : pct > 0 ? 'var(--amber)' : 'var(--border2)';
+    const names = j.assignments.map(a => {
+      const p = participantsCache.find(x => x.address.toLowerCase() === a.toLowerCase());
+      return p ? p.name : shortAddr(a);
+    }).join(', ') || 'No assignments';
+    return `
+      <div class="judge-card">
+        <div class="judge-card-name">${j.name}</div>
+        <div class="judge-card-addr">${shortAddr(j.address)}</div>
+        <div class="judge-card-assigned">Assigned: ${names}</div>
+        <div class="jp-wrap">
+          <div class="jp-bar"><div class="jp-fill" style="width:${pct}%;background:${color};"></div></div>
+          <span class="jp-label">${j.submittedCount} / ${j.assignedCount}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function populateSelects() {
+  // Judges select — deduplicated by address
+  const jSel = document.getElementById('assign-judge-select');
+  const saved = jSel.value;
+  const seenJ = new Set();
+  jSel.innerHTML = '<option value="">-- Select a Judge --</option>' +
+    judgesCache.filter(j => {
+      if (seenJ.has(j.address.toLowerCase())) return false;
+      seenJ.add(j.address.toLowerCase()); return true;
+    }).map(j => `<option value="${j.address}">${j.name}</option>`).join('');
+  if (saved) jSel.value = saved;
+
+  // Participants select — deduplicated by address
+  const pSel = document.getElementById('assign-participants-select');
+  const seenP = new Set();
+  pSel.innerHTML = participantsCache.filter(p => {
+    if (seenP.has(p.address.toLowerCase())) return false;
+    seenP.add(p.address.toLowerCase()); return true;
+  }).map(p => `<option value="${p.address}">${p.name}</option>`).join('');
+}
+
+// =====================================================
+//  AUDIT + REJECTION
+// =====================================================
+function addAudit(event, details, from) {
+  auditLog.unshift({ event, details, from: from || '—', time: new Date().toLocaleTimeString() });
+  document.getElementById('badge-audit').textContent = auditLog.length;
+  document.getElementById('audit-table').innerHTML = auditLog.map(e => `
+    <tr>
+      <td><span class="ev-chip ${e.event==='REJECTION'?'reject':''}">${e.event}</span></td>
+      <td style="color:var(--text);">${e.details}</td>
+      <td style="font-family:var(--font-mono);font-size:10px;">${shortAddr(e.from)}</td>
+      <td style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);">${e.time}</td>
+    </tr>`).join('');
+}
+
+function addRejection(reason) {
+  rejectionLog.unshift({ reason, from: currentAccount || '?', time: new Date().toLocaleTimeString() });
+
+  document.getElementById('rejection-log').innerHTML = rejectionLog.map(r => `
+    <div class="rej-entry">
+      <span class="rej-ts">${r.time}</span>
+      <span>${r.reason}</span>
+    </div>`).join('');
+
+  document.getElementById('rejection-summary').innerHTML = `
+    <div style="margin-bottom:10px;"><span class="chip chip-red">${rejectionLog.length} rejection(s) caught</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      ${rejectionLog.map(r => `
+        <div style="background:var(--bg);border:1px solid var(--red-dim);border-radius:var(--r);padding:10px 12px;">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--red-light);">${r.reason}</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-faint);margin-top:4px;">${r.time} — from ${shortAddr(r.from)}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// =====================================================
+//  ERROR HANDLING — maps contract errors to readable messages
+// =====================================================
+const ERROR_MAP = {
+  'NotOrganizer':                    'Rejected: Only the organizer can perform this action',
+  'NotAJudge':                       'Rejected: This wallet is not a registered judge',
+  'NotInRegistration':               'Rejected: Contest is not in REGISTRATION state',
+  'NotInActiveState':                'Rejected: Contest is not in ACTIVE state',
+  'AlreadyRegistered':               'Rejected: This address is already registered',
+  'NotRegistered':                   'Rejected: This address is not registered',
+  'ParticipantNotAssigned':          'Rejected: Judge cannot score a participant not assigned to them',
+  'ScoreAlreadySubmitted':           'Rejected: A score has already been submitted for this participant — scores are immutable',
+  'InvalidScore':                    'Rejected: Score value exceeds the allowed maximum',
+  'JudgesHaveIncompleteSubmissions': 'Rejected: All judges must complete their evaluations before finalization',
+  'AlreadyFinalized':                'Rejected: Contest is already finalized — no further changes allowed',
+};
+
+function handleError(e, prefix) {
+  const msg = e.message || String(e);
+  let friendly = prefix;
+  for (const [key, val] of Object.entries(ERROR_MAP)) {
+    if (msg.includes(key)) { friendly = val; break; }
+  }
+  toast(friendly, 'error');
+  addRejection(friendly);
+  addAudit('REJECTION', friendly, currentAccount);
+}
+
+// =====================================================
+//  UI UTILS
+// =====================================================
+function nav(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelector('[data-p="' + name + '"]').classList.add('active');
+  if (name === 'leaderboard') refreshLeaderboard();
+  if (name === 'judge')       refreshJudgePanel();
+}
+
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast t-' + (type || 'info');
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+function shortAddr(addr) {
+  if (!addr || addr === '—') return '—';
+  return addr.slice(0,6) + '...' + addr.slice(-4);
+}
+
+function guard() {
+  if (!web3)     { toast('Connect your wallet first', 'error'); return false; }
+  if (!contract) { toast('Deploy or connect a contract first', 'error'); return false; }
+  return true;
+}
+
+</script>
+
+<!-- Web3.js loaded from CDN -->
+<script src="./node_modules/web3/dist/web3.min.js"></script>
+</body>
+</html>

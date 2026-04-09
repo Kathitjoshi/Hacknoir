@@ -441,7 +441,7 @@ finalScore = totalAggregate / judgeCount
 ![Ethereum](https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/1200px-Ethereum_logo_2014.svg.png)
 
 ### Smart Contract Flow
-![Smart Contract](https://www.researchgate.net/profile/Mario-Varas-2/publication/331603588/figure/fig1/AS:742884102021121@1554809385999/A-conceptual-architecture-of-a-smart-contract.png)
+![Smart Contract](https://tse1.mm.bing.net/th/id/OIP.QdC0yaPpeUVD-cv8oKTj0gHaDP?rs=1&pid=ImgDetMain&o=7&rm=3)
 
 ### Blockchain Transparency
 ![Blockchain Transparency](https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800)
